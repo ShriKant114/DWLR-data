@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>वास्तविक समय भूजल संसाधन मूल्यांकन</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals with Blue Accents -->
+    <!-- Application Structure Plan: The application is designed as a single-page dashboard. It starts with the core problem (the 'Why'), moves to the proposed interactive solution (the 'What' and 'How'), and concludes with the features and impact (the 'Benefit'). This thematic flow guides the user logically from context to conclusion. The core is an interactive dashboard section where users can click buttons to simulate filtering data by different seasons (pre-monsoon, monsoon, post-monsoon), which dynamically updates a trend chart and descriptive text. This interactive element is chosen to make the concept of 'real-time analysis' tangible and engaging for users, far more effective than a static report. -->
+    <!-- Visualization & Content Choices: 
+        1. Key Stats (Problem): Report Info -> India's water scarcity stats. Goal -> Inform/Impact. Viz -> Large number cards with icons. Interaction -> None. Justification -> Immediately grabs attention and establishes the problem's scale. Method -> HTML/Tailwind.
+        2. Water Level Trends: Report Info -> 'Real-time water level fluctuation analysis'. Goal -> Show change. Viz -> Line Chart. Interaction -> Buttons to change time periods (seasons). Justification -> Line charts are ideal for time-series data. The interaction simulates the core functionality of the proposed app. Library -> Chart.js.
+        3. Recharge Estimation: Report Info -> 'Dynamically estimate recharge'. Goal -> Compare. Viz -> Bar Chart. Interaction -> Static display for comparison. Justification -> A bar chart clearly compares recharge potential across different conceptual areas. Library -> Chart.js.
+        4. Features/Impact: Report Info -> List of features and benefits for stakeholders. Goal -> Organize/Inform. Viz -> Card-based layouts and a simple flow diagram. Interaction -> None. Justification -> Cards break down information into digestible chunks. The flow diagram visualizes the value chain from data to decision. Method -> HTML/Tailwind. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-600">जल-संसाधन मॉनिटर</h1>
+            <p class="text-sm text-gray-600">DWLR डेटा-संचालित मूल्यांकन</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+
+        <section id="introduction" class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">वास्तविक समय भूजल संसाधन मूल्यांकन</h2>
+            <p class="max-w-3xl mx-auto text-gray-600">
+                यह एप्लिकेशन DWLR (डिजिटल जल स्तर रिकॉर्डर) स्टेशनों से प्राप्त डेटा का उपयोग करके भारत के भूजल संसाधनों के स्थायी प्रबंधन के लिए एक प्रस्तावित समाधान प्रस्तुत करता है।
+            </p>
+        </section>
+
+        <section id="problem" class="bg-white p-8 rounded-xl shadow-lg mb-12">
+            <h3 class="text-2xl font-bold text-center mb-6">भारत की जल चुनौती</h3>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="p-6 border border-red-200 rounded-lg bg-red-50">
+                    <div class="text-5xl font-bold text-red-600 mb-2">4%</div>
+                    <p class="text-gray-700">विश्व के मीठे जल संसाधनों का हिस्सा</p>
+                </div>
+                <div class="p-6 border border-yellow-200 rounded-lg bg-yellow-50">
+                    <div class="text-5xl font-bold text-yellow-600 mb-2">16%</div>
+                    <p class="text-gray-700">विश्व की आबादी का हिस्सा</p>
+                </div>
+                <div class="p-6 border border-blue-200 rounded-lg bg-blue-50">
+                    <div class="text-5xl font-bold text-blue-600 mb-2">5,260+</div>
+                    <p class="text-gray-700">डिजिटल जल स्तर रिकॉर्डर (DWLR) स्टेशन</p>
+                </div>
+            </div>
+             <p class="mt-6 text-center text-gray-600">
+               यह सीमित उपलब्धता, असमान वितरण और कुछ क्षेत्रों में अतिदोहन, स्थायी भूजल प्रबंधन की तत्काल आवश्यकता को उजागर करता है। संसाधनों का प्रभावी प्रबंधन करने के लिए उनका सटीक ज्ञान होना अत्यंत महत्वपूर्ण है।
+            </p>
+        </section>
+
+        <section id="solution" class="mb-12">
+            <h3 class="text-2xl font-bold text-center mb-2">प्रस्तावित समाधान: एक इंटरैक्टिव डैशबोर्ड</h3>
+             <p class="max-w-3xl mx-auto text-center text-gray-600 mb-8">
+                यह डैशबोर्ड दर्शाता है कि प्रस्तावित मोबाइल एप्लिकेशन हितधारकों को वास्तविक समय में भूजल डेटा का विश्लेषण और कल्पना करने में कैसे मदद कर सकता है। नीचे दिए गए बटनों पर क्लिक करके देखें कि विभिन्न मौसमों में जल स्तर के रुझान कैसे बदलते हैं।
+            </p>
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <div class="flex justify-center space-x-2 md:space-x-4 mb-6">
+                    <button id="btn-pre-monsoon" class="time-btn bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition">मानसून-पूर्व</button>
+                    <button id="btn-monsoon" class="time-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition">मानसून</button>
+                    <button id="btn-post-monsoon" class="time-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition">मानसून-पश्चात</button>
+                </div>
+
+                <div class="grid lg:grid-cols-5 gap-8 items-center">
+                    <div class="lg:col-span-3">
+                        <div class="chart-container">
+                            <canvas id="waterLevelChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="chart-description" class="lg:col-span-2 text-gray-600">
+                         <h4 class="font-bold text-lg text-gray-800 mb-2">जल स्तर में उतार-चढ़ाव</h4>
+                         <p>यह चार्ट समय के साथ औसत भूजल स्तर में होने वाले बदलावों को दर्शाता है। वर्तमान में, यह मानसून-पूर्व की अवधि का डेटा दिखा रहा है, जिसमें जल स्तर अक्सर अपने सबसे निचले बिंदु पर होता है।</p>
+                    </div>
+                </div>
+
+                <hr class="my-8 border-gray-200">
+
+                <div class="grid lg:grid-cols-2 gap-8 items-center">
+                     <div>
+                        <h4 class="font-bold text-lg text-gray-800 mb-2 text-center">गतिशील पुनर्भरण का अनुमान</h4>
+                         <p class="text-center text-gray-600 mb-4">यह चार्ट विभिन्न क्षेत्रों में अनुमानित भूजल पुनर्भरण क्षमता की तुलना करता है, जो स्थायी जल आवंटन के लिए महत्वपूर्ण है।</p>
+                     </div>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="rechargeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="mb-12">
+            <h3 class="text-2xl font-bold text-center mb-8">मुख्य विशेषताएँ</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow text-center hover:shadow-xl transition">
+                    <div class="text-4xl text-blue-500 mb-3">📡</div>
+                    <h4 class="font-bold text-lg mb-2">वास्तविक समय डेटा</h4>
+                    <p class="text-gray-600 text-sm">DWLR स्टेशनों से जल स्तर के आंकड़ों का सीधा एकीकरण।</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow text-center hover:shadow-xl transition">
+                    <div class="text-4xl text-blue-500 mb-3">📈</div>
+                    <h4 class="font-bold text-lg mb-2">दृश्यीकरण</h4>
+                    <p class="text-gray-600 text-sm">जल स्तर के रुझानों और पुनर्भरण पैटर्न का इंटरैक्टिव विज़ुअलाइज़ेशन।</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow text-center hover:shadow-xl transition">
+                    <div class="text-4xl text-blue-500 mb-3">💧</div>
+                    <h4 class="font-bold text-lg mb-2">संसाधन मूल्यांकन</h4>
+                    <p class="text-gray-600 text-sm">वास्तविक समय में भूजल की उपलब्धता का अनुमान।</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow text-center hover:shadow-xl transition">
+                    <div class="text-4xl text-blue-500 mb-3">🧠</div>
+                    <h4 class="font-bold text-lg mb-2">निर्णय सहायता</h4>
+                    <p class="text-gray-600 text-sm">शोधकर्ताओं, योजनाकारों और नीति निर्माताओं के लिए उपयोगी जानकारी।</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="impact" class="bg-white p-8 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold text-center mb-8">प्रस्तावित ऐप का प्रभाव</h3>
+             <p class="max-w-3xl mx-auto text-center text-gray-600 mb-8">
+                यह डिज़ाइन किया गया ऐप हितधारकों को वास्तविक समय में भूजल उपलब्धता तक त्वरित पहुँच प्रदान करके सूचित निर्णय लेने में सक्षम करेगा। यह वैज्ञानिक मूल्यांकन और प्रभावी भूजल प्रबंधन हस्तक्षेपों के प्रस्ताव में सहायता करेगा।
+            </p>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-8 text-center">
+                <div class="p-4 rounded-lg">
+                    <div class="text-5xl mb-2">📱</div>
+                    <h4 class="font-semibold">ऐप डेटा</h4>
+                    <p class="text-sm text-gray-500">वास्तविक समय विश्लेषण</p>
+                </div>
+                <div class="text-4xl text-blue-400 font-thin transform rotate-90 md:rotate-0">→</div>
+                <div class="flex space-x-6">
+                    <div class="p-4 rounded-lg">
+                        <div class="text-5xl mb-2">👩‍🔬</div>
+                        <h4 class="font-semibold">शोधकर्ता</h4>
+                    </div>
+                    <div class="p-4 rounded-lg">
+                        <div class="text-5xl mb-2">👨‍💼</div>
+                        <h4 class="font-semibold">योजनाकार</h4>
+                    </div>
+                     <div class="p-4 rounded-lg">
+                        <div class="text-5xl mb-2">🏛️</div>
+                        <h4 class="font-semibold">नीति निर्माता</h4>
+                    </div>
+                </div>
+                 <div class="text-4xl text-blue-400 font-thin transform rotate-90 md:rotate-0">→</div>
+                <div class="p-4 rounded-lg">
+                     <div class="text-5xl mb-2">💡</div>
+                    <h4 class="font-semibold">सूचित निर्णय</h4>
+                    <p class="text-sm text-gray-500">प्रभावी प्रबंधन</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="container mx-auto px-6 py-4 text-center">
+            <p>&copy; 2025 भूजल संसाधन मूल्यांकन परियोजना। सभी अधिकार सुरक्षित।</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartDescription = document.getElementById('chart-description');
+            
+            const dataSets = {
+                preMonsoon: {
+                    labels: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई'],
+                    data: [25.5, 25.8, 26.2, 26.8, 27.5],
+                    description: '<h4 class="font-bold text-lg text-gray-800 mb-2">मानसून-पूर्व अवधि</h4><p>यह मानसून से पहले का समय है जब वाष्पीकरण अधिक होता है और पुनर्भरण कम होता है, जिसके कारण भूजल स्तर में गिरावट देखी जाती है। यह कृषि और पेयजल के लिए एक महत्वपूर्ण समय होता है।</p>'
+                },
+                monsoon: {
+                    labels: ['जून', 'जुलाई', 'अगस्त', 'सितंबर'],
+                    data: [27.0, 24.5, 22.0, 23.0],
+                    description: '<h4 class="font-bold text-lg text-gray-800 mb-2">मानसून अवधि</h4><p>मानसून की वर्षा के कारण, भूजल का पुनर्भरण होता है और जल स्तर में उल्लेखनीय वृद्धि होती है। यह अवधि जलभृतों के स्वास्थ्य के लिए महत्वपूर्ण है।</p>'
+                },
+                postMonsoon: {
+                    labels: ['अक्टूबर', 'नवंबर', 'दिसंबर'],
+                    data: [23.5, 24.0, 24.8],
+                    description: '<h4 class="font-bold text-lg text-gray-800 mb-2">मानसून-पश्चात अवधि</h4><p>मानसून के बाद, जल स्तर धीरे-धीरे स्थिर होता है और फिर सिंचाई और अन्य उपयोगों के कारण घटने लगता है। इस अवधि का डेटा अगले चक्र के लिए आधार रेखा निर्धारित करता है।</p>'
+                }
+            };
+
+            const ctxWaterLevel = document.getElementById('waterLevelChart').getContext('2d');
+            const waterLevelChart = new Chart(ctxWaterLevel, {
+                type: 'line',
+                data: {
+                    labels: dataSets.preMonsoon.labels,
+                    datasets: [{
+                        label: 'औसत जल स्तर (मीटर)',
+                        data: dataSets.preMonsoon.data,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            reverse: true,
+                            title: {
+                                display: true,
+                                text: 'गहराई (मीटर)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `गहराई: ${context.parsed.y} मीटर`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const ctxRecharge = document.getElementById('rechargeChart').getContext('2d');
+            new Chart(ctxRecharge, {
+                type: 'bar',
+                data: {
+                    labels: ['क्षेत्र A', 'क्षेत्र B', 'क्षेत्र C', 'क्षेत्र D'],
+                    datasets: [{
+                        label: 'अनुमानित पुनर्भरण (MCM)',
+                        data: [120, 190, 95, 150],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(34, 197, 94, 0.7)',
+                            'rgba(234, 179, 8, 0.7)',
+                            'rgba(249, 115, 22, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(234, 179, 8, 1)',
+                            'rgba(249, 115, 22, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                     scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            const timeButtons = document.querySelectorAll('.time-btn');
+
+            function updateChart(period) {
+                const { labels, data, description } = dataSets[period];
+                waterLevelChart.data.labels = labels;
+                waterLevelChart.data.datasets[0].data = data;
+                waterLevelChart.update();
+                chartDescription.innerHTML = description;
+
+                timeButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-800');
+                });
+                
+                let activeBtn;
+                if (period === 'preMonsoon') activeBtn = document.getElementById('btn-pre-monsoon');
+                if (period === 'monsoon') activeBtn = document.getElementById('btn-monsoon');
+                if (period === 'postMonsoon') activeBtn = document.getElementById('btn-post-monsoon');
+
+                activeBtn.classList.add('bg-blue-600', 'text-white');
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-800');
+            }
+
+            document.getElementById('btn-pre-monsoon').addEventListener('click', () => updateChart('preMonsoon'));
+            document.getElementById('btn-monsoon').addEventListener('click', () => updateChart('monsoon'));
+            document.getElementById('btn-post-monsoon').addEventListener('click', () => updateChart('postMonsoon'));
+            
+            updateChart('preMonsoon');
+        });
+    </script>
+
+</body>
+</html>
